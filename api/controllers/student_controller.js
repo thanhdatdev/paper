@@ -1,16 +1,14 @@
-const AWS = require('aws-sdk');
-const FORM = require('./writeform');
+require('../../config/db/database');
 
-AWS.config.update({
-    region: "us-west-2",
-    endpoint: "http://localhost:8000"
-});
+const AWS = require('aws-sdk');
+const FORM = require('../../config/helper/writeform');
+const uuidv1 = require('uuid');
 
 let docClient = new AWS.DynamoDB.DocumentClient();
 
-function getAllItem(res) {
+function getAllStudents(res) {
     let params = {
-        TableName: "Books"
+        TableName: "Students"
     };
     let scanObject = {};
     docClient.scan(params, (err, data) => {
@@ -19,11 +17,11 @@ function getAllItem(res) {
         } else {
             scanObject.data = data;
         }
-        FORM.writeItemTable(scanObject, res);
+        FORM.writeStudentTable(scanObject, res);
     });
 }
 
-function searchItem(year, name, res) {
+function searchStudent(year, name, res) {
     let params = {
         TableName: 'Books'
     };
@@ -47,7 +45,7 @@ function searchItem(year, name, res) {
                 } else {
                     queryObject.data = data;
                 }
-                FORM.writeItemTable(queryObject, res);
+                FORM.writeStudentTable(queryObject, res);
             });
         } else {
             params.FilterExpression = '#y = :year';
@@ -59,7 +57,7 @@ function searchItem(year, name, res) {
                 } else {
                     queryObject.data = data;
                 }
-                FORM.writeItemTable(queryObject, res);
+                FORM.writeStudentTable(queryObject, res);
             });
         }
     } else if (!year) {
@@ -73,20 +71,24 @@ function searchItem(year, name, res) {
                 } else {
                     queryObject.data = data;
                 }
-                FORM.writeItemTable(queryObject, res);
+                FORM.writeStudentTable(queryObject, res);
             });
         }
     }
 }
 
-function createItem(year, name, type, author, res) {
+
+function createStudent(id_student, name_student, year, id_class, avata) {
+    idGeneratorStudents = uuidv1.v1();
     let params = {
-        TableName: 'Books',
+        TableName: 'Students',
         Item: {
-            name: String(name),
+            idGeneratorStudents: idGeneratorStudents,
+            id_student: String(id_student),
+            name_student: String(name_student),
             year: Number(year),
-            type: String(type),
-            author: String(author)
+            id_class: String(id_class),
+            avata: String(avata)
         }
     };
     docClient.put(params, (err, data) => {
@@ -100,27 +102,45 @@ function createItem(year, name, type, author, res) {
     });
 }
 
-function updateItem(year, name, type, author, res) {
-    let params = {
-        TableName: 'Books',
+function updateStudent(id_student, name_student, year, id_class, avata, res) {
+    let paramsStudent = {
+        TableName: 'Students',
         Key: {
-            "name": String(name),
+            "id_student": String(id_student),
             "year": Number(year)
         },
-        UpdateExpression: "set #t = :type, #a = :author",
+        UpdateExpression: "set #n = :name, #a = :avata",
         ExpressionAttributeNames: {
-            '#t': 'type',
-            '#a': 'author'
+            '#n': 'name',
+            '#a': 'avata'
         },
         ExpressionAttributeValues: {
-            ':type': String(type),
-            ':author': String(author)
+            ':type': String(name_student),
+            ':author': String(avata)
         },
         ReturnValues: "UPDATED_NEW"
     };
-    docClient.update(params, (err, data) => {
+
+    let paramsClass = {
+        TableName: 'Classes',
+        Key: {
+            "id_class": String(id_class),
+        },
+
+        ReturnValues: "UPDATED_NEW"
+    }
+    docClient.update(paramsStudent, (err, data) => {
         if (err) {
-            FORM.writeEditForm(year, name, type, author, res);
+            FORM.writeEditForm(id_student, name_student, year, id_class, avata, res);
+            res.write('<h5 style="color:red;">Vui lòng nhập đủ các thuộc tính</h5>');
+        } else {
+            res.writeHead(302, { 'Location': '/' });
+        }
+        res.end();
+    })
+    docClient.update(paramsClass, (err, data) => {
+        if (err) {
+            FORM.writeEditForm(id_student, name_student, year, id_class, avata, res);
             res.write('<h5 style="color:red;">Vui lòng nhập đủ các thuộc tính</h5>');
         } else {
             res.writeHead(302, { 'Location': '/' });
@@ -129,9 +149,9 @@ function updateItem(year, name, type, author, res) {
     })
 }
 
-function deleteItem(year, name, res) {
+function deleteStudent(year, name, res) {
     let params = {
-        TableName: 'Books',
+        TableName: 'Students',
         Key: {
             "name": String(name),
             "year": Number(year)
@@ -149,9 +169,8 @@ function deleteItem(year, name, res) {
 }
 
 module.exports = {
-    getAllItem: getAllItem,
-    searchItem: searchItem,
-    createItem: createItem,
-    updateItem: updateItem,
-    deleteItem: deleteItem
+    getAllStudents: getAllStudents,
+    createStudent: createStudent,
+    updateStudent: updateStudent,
+    deleteStudent: deleteStudent
 };
