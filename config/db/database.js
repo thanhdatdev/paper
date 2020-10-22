@@ -1,5 +1,5 @@
-require('./environment');
 const AWS = require('aws-sdk');
+require('./environment');
 
 AWS.config.update({
     region: 'ap-southeast-1',

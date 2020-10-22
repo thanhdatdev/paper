@@ -21,22 +21,22 @@ function getAllStudents(res) {
     });
 }
 
-function searchStudent(year, name, res) {
+function searchStudent(id_student, name, res) {
     let params = {
-        TableName: 'Books'
+        TableName: 'Students'
     };
     let queryObject = {};
-    console.log(year);
+    console.log(id_student);
     console.log(name);
-    if (year) {
+    if (id_student) {
         if (name) {
-            params.KeyConditionExpression = '#y = :year and #n =:name';
+            params.KeyConditionExpression = '#i = :id_student and #n =:name';
             params.ExpressionAttributeNames = {
-                '#y': 'year',
+                '#i': 'id_student',
                 '#n': 'name'
             };
             params.ExpressionAttributeValues = {
-                ':year': Number(year),
+                ':i': String(id_student),
                 ':name': String(name)
             };
             docClient.query(params, (err, data) => {
@@ -48,9 +48,9 @@ function searchStudent(year, name, res) {
                 FORM.writeStudentTable(queryObject, res);
             });
         } else {
-            params.FilterExpression = '#y = :year';
-            params.ExpressionAttributeNames = { '#y': 'year' };
-            params.ExpressionAttributeValues = { ':year': Number(year) };
+            params.FilterExpression = '#i = :id_student';
+            params.ExpressionAttributeNames = { '#i': 'id_student' };
+            params.ExpressionAttributeValues = { ':id_student': String(id_student) };
             docClient.scan(params, (err, data) => {
                 if (err) {
                     queryObject.err = err;
@@ -60,7 +60,7 @@ function searchStudent(year, name, res) {
                 FORM.writeStudentTable(queryObject, res);
             });
         }
-    } else if (!year) {
+    } else if (!id_student) {
         if (name) {
             params.FilterExpression = '#n = :name';
             params.ExpressionAttributeNames = { '#n': 'name' };
@@ -78,7 +78,7 @@ function searchStudent(year, name, res) {
 }
 
 
-function createStudent(id_student, name_student, year, id_class, avata) {
+function createStudent(id_student, name_student, year, id_class, avata, res) {
     idGeneratorStudents = uuidv1.v1();
     let params = {
         TableName: 'Students',
@@ -149,12 +149,11 @@ function updateStudent(id_student, name_student, year, id_class, avata, res) {
     })
 }
 
-function deleteStudent(year, name, res) {
+function deleteStudent(id_student, res) {
     let params = {
         TableName: 'Students',
         Key: {
-            "name": String(name),
-            "year": Number(year)
+            "id_student": String(id_student)
         }
     };
 
@@ -170,6 +169,7 @@ function deleteStudent(year, name, res) {
 
 module.exports = {
     getAllStudents: getAllStudents,
+    searchStudent: searchStudent,
     createStudent: createStudent,
     updateStudent: updateStudent,
     deleteStudent: deleteStudent

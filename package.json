@@ -1,10 +1,11 @@
 {
-    "name": "book",
+    "name": "students",
     "version": "1.0.0",
-    "description": "",
     "main": "app.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "java -Djava.library.path=./dynamodb_local_latest/DynamoDBLocal_lib -jar ./dynamodb_local_latest/DynamoDBLocal.jar -sharedDb -inMemory && node ./config/initializes/tasks/createTable.js && node ./config/initializes/tasks/createInstanceDefault.js",
+        "start": "node app.js"
     },
     "author": "",
     "license": "ISC",
@@ -12,5 +13,15 @@
         "aws-sdk": "latest",
         "debug": "^4.2.0",
         "path": "^0.12.7"
-    }
+    },
+    "devDependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/thanhdatdev/student-repo.git"
+    },
+    "bugs": {
+        "url": "https://github.com/thanhdatdev/student-repo/issues"
+    },
+    "homepage": "https://github.com/thanhdatdev/student-repo#readme",
+    "description": ""
 }

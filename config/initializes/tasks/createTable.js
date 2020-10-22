@@ -7,13 +7,11 @@ let paramsStudents = {
     TableName: "Students",
     KeySchema: [
         { AttributeName: "id_student", KeyType: "HASH" },
-        { AttributeName: "year", KeyType: "RANGE" }
     ],
 
 
     AttributeDefinitions: [
         { AttributeName: "id_student", AttributeType: "S" },
-        { AttributeName: "year", AttributeType: "N" }
     ],
     ProvisionedThroughput: {
         ReadCapacityUnits: 10,
